@@ -1,3 +1,12 @@
+/**
+ * Statistics page component displaying training activity data in a bar chart
+ * This file demonstrates:
+ * - Data visualization with Recharts
+ * - Data aggregation with Lodash
+ * - Responsive chart implementation
+ * - Loading state handling
+ */
+
 import { useState, useEffect, useMemo } from 'react';
 import { Box, Typography, CircularProgress } from '@mui/material';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -12,6 +21,13 @@ interface ActivityStats {
 
 const CHART_MARGINS = { top: 20, right: 30, left: 40, bottom: 5 } as const;
 
+/**
+ * Statistics page component that displays training durations by activity
+ * Demonstrates:
+ * - Data fetching and transformation
+ * - Chart configuration
+ * - Loading state management
+ */
 const StatisticsPage = () => {
   const [stats, setStats] = useState<ActivityStats[]>([]);
   const [loading, setLoading] = useState(true);

@@ -1,3 +1,13 @@
+/**
+ * Training sessions management page component
+ * This file demonstrates:
+ * - Data fetching and display with DataGrid
+ * - Date formatting with date-fns
+ * - Custom cell rendering
+ * - Delete functionality
+ * - Search and filtering
+ */
+
 import { useState, useEffect } from 'react';
 import { DataGrid, GridColDef, GridActionsCellItem } from '@mui/x-data-grid';
 import { GridRenderCellParams } from '@mui/x-data-grid/models';
@@ -7,6 +17,9 @@ import { format } from 'date-fns';
 import { toast } from 'sonner';
 import api, { Training } from '../services/api';
 
+/**
+ * Props for the delete confirmation dialog
+ */
 interface DeleteConfirmDialogProps {
   open: boolean;
   onClose: () => void;
@@ -15,6 +28,11 @@ interface DeleteConfirmDialogProps {
   content: string;
 }
 
+/**
+ * Generic confirmation dialog for delete operations
+ * @param props - Dialog properties including open state, callbacks, and content
+ * @returns JSX.Element - The rendered dialog
+ */
 const DeleteConfirmDialog = ({ open, onClose, onConfirm, title, content }: DeleteConfirmDialogProps) => (
   <Dialog open={open} onClose={onClose}>
     <DialogTitle>{title}</DialogTitle>
@@ -26,17 +44,34 @@ const DeleteConfirmDialog = ({ open, onClose, onConfirm, title, content }: Delet
   </Dialog>
 );
 
+/**
+ * Main training list component
+ * Demonstrates:
+ * - Data fetching and state management
+ * - Search functionality
+ * - Delete operations
+ * - DataGrid implementation with custom cell rendering
+ */
 const TrainingList = () => {
+  // State for managing training data and UI state
   const [trainings, setTrainings] = useState<Training[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedTrainingId, setSelectedTrainingId] = useState<number | null>(null);
 
+  // Fetch trainings on component mount
   useEffect(() => {
     fetchTrainings();
   }, []);
 
+  /**
+   * Fetches training data from the API
+   * - Sets loading state during fetch
+   * - Updates trainings state with fetched data
+   * - Handles error cases with toast notifications
+   * - Resets loading state after completion
+   */
   const fetchTrainings = async () => {
     try {
       const data = await api.getTrainings();
@@ -49,6 +84,14 @@ const TrainingList = () => {
     }
   };
 
+  /**
+   * Handles the deletion of a training session
+   * - Validates selected training ID
+   * - Calls API to delete the training
+   * - Refreshes training list on success
+   * - Manages dialog state and notifications
+   * - Handles error cases with toast notifications
+   */
   const handleDeleteTraining = async () => {
     if (!selectedTrainingId) return;
     try {
@@ -63,6 +106,13 @@ const TrainingList = () => {
     }
   };
 
+  /**
+   * DataGrid column definitions
+   * Includes:
+   * - Date formatting with date-fns
+   * - Customer name concatenation
+   * - Delete action with confirmation dialog
+   */
   const columns: GridColDef[] = [
     {
       field: 'date',
@@ -112,6 +162,12 @@ const TrainingList = () => {
     },
   ];
 
+  /**
+   * Filters training sessions based on search term
+   * Matches against:
+   * - Activity name
+   * - Customer full name
+   */
   const filteredTrainings = trainings.filter((training) => {
     const searchStr = searchTerm.toLowerCase();
     return (
@@ -128,6 +184,7 @@ const TrainingList = () => {
       <Typography variant="h4" gutterBottom>
         Trainings
       </Typography>
+      {/* Search field for filtering trainings */}
       <TextField
         label="Search Trainings"
         variant="outlined"
@@ -136,6 +193,7 @@ const TrainingList = () => {
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
+      {/* DataGrid for displaying trainings with sorting and pagination */}
       <Box sx={{ height: 600, width: '1440px', maxWidth: '100%' }}>
         <DataGrid
           rows={filteredTrainings}
@@ -155,6 +213,7 @@ const TrainingList = () => {
         />
       </Box>
 
+      {/* Confirmation dialog for delete operations */}
       <DeleteConfirmDialog
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}

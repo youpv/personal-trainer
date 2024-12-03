@@ -1,13 +1,22 @@
+/**
+ * Main application component that sets up routing and global configurations.
+ * This file demonstrates:
+ * - React Router setup for SPA navigation
+ * - Material-UI (MUI) theme configuration
+ * - Global layout structure
+ */
+
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import { createTheme, SxProps, Theme } from '@mui/material/styles';
-import { Toaster } from 'sonner';
+import { Toaster } from 'sonner'; // Optional: For toast notifications
 import Layout from './components/Layout';
 import CustomerList from './pages/CustomerList';
 import TrainingList from './pages/TrainingList';
 import CalendarPage from './pages/Calendar';
 import StatisticsPage from './pages/Statistics';
 
+// Optional: Extended theme typing for custom DataGrid styling
 declare module '@mui/material/styles' {
   interface Components {
     MuiDataGrid: {
@@ -19,6 +28,14 @@ declare module '@mui/material/styles' {
   }
 }
 
+/**
+ * Custom MUI theme configuration
+ * Optional: You can modify these values or use MUI's default theme
+ * Demonstrates:
+ * - Custom color palette
+ * - Component style overrides
+ * - Typography customization
+ */
 const theme = createTheme({
   palette: {
     mode: 'light',
@@ -43,6 +60,7 @@ const theme = createTheme({
       secondary: '#334155',
     },
   },
+  // Optional: Component style overrides for consistent UI
   components: {
     MuiDataGrid: {
       styleOverrides: {
@@ -108,10 +126,19 @@ const theme = createTheme({
   },
 });
 
+/**
+ * Root component that wraps the entire application
+ * Demonstrates:
+ * - Theme provider setup
+ * - Router configuration
+ * - Global layout structure
+ * - Route definitions
+ */
 function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
+      {/* Optional: Toast notifications container */}
       <Toaster position="bottom-center" expand={true} richColors />
       <Router>
         <Layout>

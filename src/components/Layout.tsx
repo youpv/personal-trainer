@@ -1,3 +1,12 @@
+/**
+ * Layout component providing the application's common structure
+ * This file demonstrates:
+ * - Navigation bar implementation
+ * - Styled components with MUI
+ * - Responsive layout design
+ * - Route linking with react-router-dom
+ */
+
 import { ReactNode } from 'react';
 import { AppBar, Toolbar, Typography, Container, Box, Button } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
@@ -5,6 +14,10 @@ import { styled } from '@mui/material/styles';
 import { toast } from 'sonner';
 import axios from 'axios';
 
+/**
+ * Optional: Styled navigation link component
+ * Demonstrates custom styling with MUI's styled API
+ */
 const StyledLink = styled(RouterLink)`
   color: white;
   text-decoration: none;
@@ -32,6 +45,10 @@ const StyledLink = styled(RouterLink)`
   }
 `;
 
+/**
+ * Optional: Styled AppBar component
+ * Demonstrates theme integration with styled components
+ */
 const StyledAppBar = styled(AppBar)`
   background-color: ${props => props.theme.palette.primary.main};
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -41,7 +58,20 @@ interface LayoutProps {
   children: ReactNode;
 }
 
+/**
+ * Main layout component that wraps all pages
+ * Demonstrates:
+ * - Responsive container usage
+ * - Navigation implementation
+ * - Database reset functionality
+ * 
+ * @param children - React components to be rendered within the layout
+ */
 const Layout = ({ children }: LayoutProps) => {
+  /**
+   * Optional: Handler for database reset
+   * Demonstrates API integration and toast notifications
+   */
   const handleResetDatabase = async () => {
     try {
       await axios.post('https://customer-rest-service-frontend-personaltrainer.2.rahtiapp.fi/reset');

@@ -1,3 +1,12 @@
+/**
+ * Calendar page component displaying training sessions in a calendar view
+ * This file demonstrates:
+ * - Integration with react-big-calendar
+ * - Date handling with date-fns
+ * - View switching functionality
+ * - Event display customization
+ */
+
 import { useState, useEffect } from 'react';
 import { Box, Typography, ToggleButtonGroup, ToggleButton, CircularProgress } from '@mui/material';
 import { Calendar, dateFnsLocalizer, View } from 'react-big-calendar';
@@ -10,6 +19,10 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { toast } from 'sonner';
 import api, { Training } from '../services/api';
 
+/**
+ * Locale configuration for the calendar
+ * Demonstrates date-fns locale setup with Monday as first day of week
+ */
 const locales = {
   'en-US': {
     ...enUS,
@@ -20,6 +33,10 @@ const locales = {
   },
 };
 
+/**
+ * Calendar localizer configuration using date-fns
+ * Required for react-big-calendar to handle dates correctly
+ */
 const localizer = dateFnsLocalizer({
   format,
   parse,
@@ -28,6 +45,9 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
+/**
+ * Interface for calendar events transformed from training data
+ */
 interface CalendarEvent {
   id: number;
   title: string;
@@ -36,15 +56,26 @@ interface CalendarEvent {
   customer: string;
 }
 
+/**
+ * Calendar page component that displays training sessions in a calendar view
+ * Demonstrates:
+ * - Data fetching and transformation
+ * - Calendar view switching
+ * - Event display
+ */
 const CalendarPage = () => {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [view, setView] = useState<View>('month');
   const [loading, setLoading] = useState(true);
 
+  // Fetch and transform training data on component mount
   useEffect(() => {
     fetchTrainings();
   }, []);
 
+  /**
+   * Fetches training data and transforms it into calendar events
+   */
   const fetchTrainings = async () => {
     try {
       const trainings = await api.getTrainings();
@@ -64,10 +95,14 @@ const CalendarPage = () => {
     }
   };
 
+  /**
+   * Handler for calendar view changes
+   */
   const handleViewChange = (newView: View) => {
     setView(newView);
   };
 
+  // Loading state display
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', minHeight: 400 }}>
@@ -82,6 +117,7 @@ const CalendarPage = () => {
         <Typography variant="h4" gutterBottom>
           Training Calendar
         </Typography>
+        {/* Optional: View switching controls */}
         <ToggleButtonGroup
           value={view}
           exclusive
@@ -100,6 +136,7 @@ const CalendarPage = () => {
         </ToggleButtonGroup>
       </Box>
       
+      {/* Optional: Styled calendar container */}
       <Box sx={{ 
         height: 'calc(100vh - 250px)',
         minHeight: 600,

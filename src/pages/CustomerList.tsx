@@ -1,3 +1,13 @@
+/**
+ * Customer management page component
+ * This file demonstrates:
+ * - CRUD operations with REST API
+ * - Material-UI DataGrid implementation
+ * - Form handling with dialogs
+ * - CSV export functionality
+ * - Search and filtering
+ */
+
 import { useState, useEffect } from 'react';
 import { DataGrid, GridColDef, GridActionsCellItem } from '@mui/x-data-grid';
 import { TextField, Box, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions, Tooltip } from '@mui/material';
@@ -12,6 +22,11 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { toast } from 'sonner';
 import api, { Customer, NewTraining } from '../services/api';
 
+/**
+ * Default form data structure for new customer creation.
+ * Contains empty strings for all required customer fields.
+ * Used to reset the form when adding a new customer.
+ */
 const defaultFormData: Customer = {
   firstname: '',
   lastname: '',
@@ -22,6 +37,9 @@ const defaultFormData: Customer = {
   city: '',
 };
 
+/**
+ * Props for the customer dialog component
+ */
 interface CustomerDialogProps {
   open: boolean;
   onClose: () => void;
@@ -30,6 +48,9 @@ interface CustomerDialogProps {
   title: string;
 }
 
+/**
+ * Props for the training dialog component
+ */
 interface TrainingDialogProps {
   open: boolean;
   onClose: () => void;
@@ -37,6 +58,9 @@ interface TrainingDialogProps {
   customerUrl: string;
 }
 
+/**
+ * Props for the delete confirmation dialog
+ */
 interface DeleteConfirmDialogProps {
   open: boolean;
   onClose: () => void;
@@ -45,6 +69,16 @@ interface DeleteConfirmDialogProps {
   content: string;
 }
 
+/**
+ * Dialog component for adding or editing customer information.
+ * Handles form state and validation for customer data.
+ * 
+ * @param {boolean} open - Controls dialog visibility
+ * @param {Function} onClose - Callback function to handle dialog close
+ * @param {Function} onSave - Callback function to handle form submission
+ * @param {Customer} [customer] - Optional existing customer data for editing
+ * @param {string} title - Dialog title text
+ */
 const CustomerDialog = ({ open, onClose, onSave, customer, title }: CustomerDialogProps) => {
   const [formData, setFormData] = useState<Customer>(defaultFormData);
 
@@ -52,10 +86,19 @@ const CustomerDialog = ({ open, onClose, onSave, customer, title }: CustomerDial
     setFormData(customer || defaultFormData);
   }, [customer, open]);
 
+  /**
+   * Handles form input changes by updating the form state.
+   * @param {React.ChangeEvent<HTMLInputElement>} e - Input change event
+   */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  /**
+   * Handles form submission and triggers the save callback.
+   * Prevents default form submission behavior.
+   * @param {React.FormEvent} e - Form submission event
+   */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave(formData);
@@ -128,6 +171,15 @@ const CustomerDialog = ({ open, onClose, onSave, customer, title }: CustomerDial
   );
 };
 
+/**
+ * Dialog component for adding new training sessions to a customer.
+ * Provides date-time selection and training details input.
+ * 
+ * @param {boolean} open - Controls dialog visibility
+ * @param {Function} onClose - Callback function to handle dialog close
+ * @param {Function} onSave - Callback function to handle form submission
+ * @param {string} customerUrl - API URL reference to the associated customer
+ */
 const TrainingDialog = ({ open, onClose, onSave, customerUrl }: TrainingDialogProps) => {
   const [formData, setFormData] = useState<Omit<NewTraining, 'customer'>>({
     date: new Date().toISOString(),
@@ -183,6 +235,9 @@ const TrainingDialog = ({ open, onClose, onSave, customerUrl }: TrainingDialogPr
   );
 };
 
+/**
+ * Generic confirmation dialog for delete operations
+ */
 const DeleteConfirmDialog = ({ open, onClose, onConfirm, title, content }: DeleteConfirmDialogProps) => (
   <Dialog open={open} onClose={onClose}>
     <DialogTitle>{title}</DialogTitle>
@@ -194,6 +249,17 @@ const DeleteConfirmDialog = ({ open, onClose, onConfirm, title, content }: Delet
   </Dialog>
 );
 
+/**
+ * Main customer management component.
+ * Provides functionality for:
+ * - Displaying customers in a data grid
+ * - Adding, editing, and deleting customers
+ * - Adding training sessions to customers
+ * - Searching and filtering customers
+ * - Exporting customer data to CSV
+ * 
+ * @returns {JSX.Element} Rendered customer management interface
+ */
 const CustomerList = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -205,6 +271,10 @@ const CustomerList = () => {
   const [selectedCustomerUrl, setSelectedCustomerUrl] = useState<string>('');
   const [isEditing, setIsEditing] = useState(false);
 
+  /**
+   * Fetches customer data from the API and updates the local state.
+   * Handles loading state and error notifications.
+   */
   const fetchCustomers = async () => {
     try {
       const data = await api.getCustomers();
@@ -221,6 +291,12 @@ const CustomerList = () => {
     fetchCustomers();
   }, []);
 
+  /**
+   * Handles the creation of a new customer.
+   * Sends API request and updates the customer list on success.
+   * 
+   * @param {Customer} customer - New customer data to be added
+   */
   const handleAddCustomer = async (customer: Customer) => {
     try {
       await api.addCustomer(customer);
@@ -233,6 +309,12 @@ const CustomerList = () => {
     }
   };
 
+  /**
+   * Handles updating an existing customer's information.
+   * Requires a valid customer URL reference for the API call.
+   * 
+   * @param {Customer} customer - Updated customer data
+   */
   const handleEditCustomer = async (customer: Customer) => {
     if (!selectedCustomer?._links?.self.href) return;
     try {
@@ -248,6 +330,11 @@ const CustomerList = () => {
     }
   };
 
+  /**
+   * Handles customer deletion after confirmation.
+   * Removes the customer and their associated training sessions.
+   * Requires a valid customer URL reference.
+   */
   const handleDeleteCustomer = async () => {
     if (!selectedCustomerUrl) return;
     try {
@@ -262,6 +349,12 @@ const CustomerList = () => {
     }
   };
 
+  /**
+   * Handles the creation of a new training session for a customer.
+   * Associates the training with the selected customer via their URL.
+   * 
+   * @param {NewTraining} training - New training session data
+   */
   const handleAddTraining = async (training: NewTraining) => {
     try {
       await api.addTraining(training);
@@ -273,26 +366,22 @@ const CustomerList = () => {
     }
   };
 
+  /**
+   * Exports customer data to a CSV file.
+   * Generates a downloadable file with all customer information.
+   * Handles browser compatibility for file downloads.
+   */
   const handleExportCSV = () => {
-    // Define which fields to export
     const fields = ['firstname', 'lastname', 'email', 'phone', 'streetaddress', 'postcode', 'city'];
-    
-    // Create CSV header
     const csvHeader = fields.join(',');
-    
-    // Create CSV rows
     const csvRows = customers.map(customer => {
       return fields.map(field => {
         const value = customer[field as keyof Customer];
-        // Escape commas and quotes in the value
         return `"${String(value).replace(/"/g, '""')}"`;
       }).join(',');
     });
     
-    // Combine header and rows
     const csvString = [csvHeader, ...csvRows].join('\n');
-    
-    // Create blob and download
     const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     if (link.download !== undefined) {
@@ -308,6 +397,13 @@ const CustomerList = () => {
     }
   };
 
+  /**
+   * DataGrid column definitions with custom rendering and actions.
+   * Includes:
+   * - Basic customer information columns
+   * - Action buttons for edit, delete, and adding training sessions
+   * - Tooltip-enhanced action buttons for better UX
+   */
   const columns: GridColDef[] = [
     { field: 'firstname', headerName: 'First Name', flex: 1 },
     { field: 'lastname', headerName: 'Last Name', flex: 1 },
@@ -366,6 +462,11 @@ const CustomerList = () => {
     },
   ];
 
+  /**
+   * Filters the customer list based on the search term.
+   * Searches across multiple fields: firstname, lastname, email, and city.
+   * Case-insensitive search implementation.
+   */
   const filteredCustomers = customers.filter((customer) => {
     const searchStr = searchTerm.toLowerCase();
     return (
